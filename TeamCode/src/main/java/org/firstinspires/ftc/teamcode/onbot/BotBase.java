@@ -45,11 +45,7 @@ public class BotBase extends LinearOpMode  {
     private static final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
     private static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
-    private static final double     DRIVE_SPEED             = 2.5;
 
-    private static final double     TURN_SPEED              = 0.6;
-
-    boolean ranOnce = false;
     class MyBot
     {
         /* Public OpMode members. */
@@ -58,7 +54,7 @@ public class BotBase extends LinearOpMode  {
         DcMotor motorBackRight;
         DcMotor motorBackLeft;
 
-
+        DcMotor[] driveMotors = new DcMotor[]{motorFrontRight, motorFrontLeft, motorBackLeft, motorBackRight};
 
         /* local OpMode members. */
         HardwareMap hwMap           =  null;
@@ -78,23 +74,16 @@ public class BotBase extends LinearOpMode  {
             motorBackLeft = hwMap.dcMotor.get("BL");
             motorBackRight = hwMap.dcMotor.get("BR");
 
-            motorFrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            motorFrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            motorBackLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            motorBackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            for(DcMotor m: driveMotors)
+                m.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-            motorFrontLeft.setDirection(DcMotor.Direction.REVERSE);
-            motorFrontRight.setDirection(DcMotor.Direction.REVERSE);
 
+            for(DcMotor m: new DcMotor[]{motorFrontLeft,motorFrontRight})
+                    m.setDirection(DcMotor.Direction.REVERSE);
 
             // Set all motors to zero power
-            motorFrontRight.setPower(0);
-            motorFrontLeft.setPower(0);
-            motorBackLeft.setPower(0);
-            motorBackRight.setPower(0);
-
-
-
+            for(DcMotor m: driveMotors)
+                m.setPower(0);
         }
     }
 
@@ -122,12 +111,13 @@ public class BotBase extends LinearOpMode  {
                         double speed, double timeoutS) {
         int newCount = (int)(inches * COUNTS_PER_INCH);
 
+        for(DcMotor m: new DcMotor[]{robot.motorBackLeft,robot.motorFrontRight})
+            m.setTargetPosition(m.getCurrentPosition() + newCount);
 
-        // Determine new target position, and pass to motor controller
-        robot.motorFrontLeft.setTargetPosition(robot.motorFrontLeft.getCurrentPosition() - newCount);
-        robot.motorBackLeft.setTargetPosition(robot.motorBackLeft.getCurrentPosition() + newCount);
-        robot.motorFrontRight.setTargetPosition(robot.motorFrontRight.getCurrentPosition() + newCount);
-        robot.motorBackRight.setTargetPosition(robot.motorBackRight.getCurrentPosition() - newCount);
+        for(DcMotor m: new DcMotor[]{robot.motorFrontLeft,robot.motorBackRight})
+            m.setTargetPosition(m.getCurrentPosition() - newCount);
+
+
         runDriveMotors(speed, timeoutS);
     }
 
@@ -140,10 +130,8 @@ public class BotBase extends LinearOpMode  {
 
         telemetry.update();
         // Determine new target position, and pass to motor controller
-        robot.motorFrontLeft.setTargetPosition(robot.motorFrontLeft.getCurrentPosition() + newCount);
-        robot.motorBackLeft.setTargetPosition(robot.motorBackLeft.getCurrentPosition() + newCount);
-        robot.motorFrontRight.setTargetPosition(robot.motorFrontRight.getCurrentPosition() + newCount);
-        robot.motorBackRight.setTargetPosition(robot.motorBackRight.getCurrentPosition() + newCount);
+        for(DcMotor m: robot.driveMotors)
+          m.setTargetPosition(m.getCurrentPosition() + newCount);
 
         runDriveMotors(speed, timeoutS);
     }
@@ -155,11 +143,12 @@ public class BotBase extends LinearOpMode  {
         double archLength = 3.1415 * WHEEL_BASE_INCHES * angle /360;
         int newCount = (int)(archLength * COUNTS_PER_INCH);
 
-        // Determine new target position, and pass to motor controller
-        robot.motorFrontLeft.setTargetPosition(robot.motorFrontLeft.getCurrentPosition() + newCount);
-        robot.motorBackLeft.setTargetPosition(robot.motorBackLeft.getCurrentPosition() + newCount);
-        robot.motorFrontRight.setTargetPosition(robot.motorFrontRight.getCurrentPosition() - newCount);
-        robot.motorBackRight.setTargetPosition(robot.motorBackRight.getCurrentPosition() - newCount);
+        for(DcMotor m: new DcMotor[]{robot.motorFrontLeft,robot.motorBackLeft})
+            m.setTargetPosition(m.getCurrentPosition() + newCount);
+
+        for(DcMotor m: new DcMotor[]{robot.motorFrontRight,robot.motorBackRight})
+            m.setTargetPosition(m.getCurrentPosition() - newCount);
+
         runDriveMotors(speed, timeoutS);
 
     }
@@ -184,25 +173,21 @@ public class BotBase extends LinearOpMode  {
     public void runDriveMotors(double speed, double timeoutS){
 
         // Turn On RUN_TO_POSITION
-        robot.motorFrontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.motorBackLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.motorFrontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.motorBackRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        for(DcMotor m: robot.driveMotors)
+            m.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         runtime.reset();
-        robot.motorFrontLeft.setPower(Math.abs(speed));
-        robot.motorBackLeft.setPower(Math.abs(speed));
-        robot.motorFrontRight.setPower(Math.abs(speed));
-        robot.motorBackRight.setPower(Math.abs(speed));
+        for(DcMotor m: robot.driveMotors)
+            m.setPower(Math.abs(speed));
+
 
         while (opModeIsActive() &&
                 (runtime.seconds() < timeoutS) &&
                 (robot.motorFrontLeft.isBusy() && robot.motorBackLeft.isBusy() && robot.motorFrontRight.isBusy() && robot.motorBackRight.isBusy())) {
 
         }
-        robot.motorFrontLeft.setPower(0);
-        robot.motorBackLeft.setPower(0);
-        robot.motorFrontRight.setPower(0);
-        robot.motorBackRight.setPower(0);
+        // Set all motors to zero power
+        for(DcMotor m: robot.driveMotors)
+            m.setPower(0);
     }
 }
