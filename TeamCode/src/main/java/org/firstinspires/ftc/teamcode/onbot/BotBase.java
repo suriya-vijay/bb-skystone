@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
@@ -16,7 +17,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 import java.util.List;
 
-public class BotBase extends LinearOpMode  {
+public class BotBase extends LinearOpMode {
 
     private static final String TFOD_MODEL_ASSET = "Skystone.tflite";
     private static final String LABEL_FIRST_ELEMENT = "Stone";
@@ -39,28 +40,31 @@ public class BotBase extends LinearOpMode  {
     /* Declare OpMode members. */
     org.firstinspires.ftc.teamcode.onbot.BotBase.MyBot robot = new org.firstinspires.ftc.teamcode.onbot.BotBase.MyBot();
     ElapsedTime runtime = new ElapsedTime();
-    private static final double     WHEEL_BASE_INCHES       = 25;
-    private static final double     COUNTS_PER_MOTOR_REV    = 288 ;    // eg: TETRIX Motor Encoder
-    private static final double     DRIVE_GEAR_REDUCTION    = 1.0 ;     // This is < 1.0 if geared UP
-    private static final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
-    private static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
+    private static final double WHEEL_BASE_INCHES = 25;
+    private static final double COUNTS_PER_MOTOR_REV = 288;    // eg: TETRIX Motor Encoder
+    private static final double DRIVE_GEAR_REDUCTION = 1.0;     // This is < 1.0 if geared UP
+    private static final double WHEEL_DIAMETER_INCHES = 4.0;     // For figuring circumference
+    private static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
 
-    class MyBot
-    {
+    class MyBot {
         /* Public OpMode members. */
         DcMotor motorFrontRight;
         DcMotor motorFrontLeft;
         DcMotor motorBackRight;
         DcMotor motorBackLeft;
 
-        DcMotor[] driveMotors = new DcMotor[]{motorFrontRight, motorFrontLeft, motorBackLeft, motorBackRight};
+        DcMotor verticalLift;
+
+        DcMotor[] driveMotors;
+
+        Servo horizontalSlide;
 
         /* local OpMode members. */
-        HardwareMap hwMap           =  null;
+        HardwareMap hwMap = null;
 
         /* Constructor */
-        public MyBot(){
+        public MyBot() {
 
         }
 
@@ -74,28 +78,34 @@ public class BotBase extends LinearOpMode  {
             motorBackLeft = hwMap.dcMotor.get("BL");
             motorBackRight = hwMap.dcMotor.get("BR");
 
-            for(DcMotor m: driveMotors)
+            driveMotors = new DcMotor[]{motorFrontRight, motorFrontLeft, motorBackLeft, motorBackRight};
+            verticalLift = hwMap.dcMotor.get("VL");
+            //verticalLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            verticalLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            verticalLift.setPower(0);
+
+            horizontalSlide = hwMap.servo.get("HS");
+
+            for (DcMotor m : driveMotors)
                 m.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
 
-            for(DcMotor m: new DcMotor[]{motorFrontLeft,motorFrontRight})
-                    m.setDirection(DcMotor.Direction.REVERSE);
+            for (DcMotor m : new DcMotor[]{motorFrontLeft, motorFrontRight})
+                m.setDirection(DcMotor.Direction.REVERSE);
 
             // Set all motors to zero power
-            for(DcMotor m: driveMotors)
+            for (DcMotor m : driveMotors)
                 m.setPower(0);
         }
     }
 
 
-
     @Override
-    public void runOpMode() {
+    public void runOpMode() throws InterruptedException {
         robot.init(hardwareMap); //initialize the hardware
         waitForStart();
         runTasks();
     }
-
 
 
     /*
@@ -109,12 +119,12 @@ public class BotBase extends LinearOpMode  {
     //strafing
     public void runLeft(double inches,
                         double speed, double timeoutS) {
-        int newCount = (int)(inches * COUNTS_PER_INCH);
+        int newCount = (int) (inches * COUNTS_PER_INCH);
 
-        for(DcMotor m: new DcMotor[]{robot.motorBackLeft,robot.motorFrontRight})
+        for (DcMotor m : new DcMotor[]{robot.motorBackLeft, robot.motorFrontRight})
             m.setTargetPosition(m.getCurrentPosition() + newCount);
 
-        for(DcMotor m: new DcMotor[]{robot.motorFrontLeft,robot.motorBackRight})
+        for (DcMotor m : new DcMotor[]{robot.motorFrontLeft, robot.motorBackRight})
             m.setTargetPosition(m.getCurrentPosition() - newCount);
 
 
@@ -123,30 +133,28 @@ public class BotBase extends LinearOpMode  {
 
     public void runForward(double inches,
                            double speed, double timeoutS) {
-        int newCount = (int)(inches * COUNTS_PER_INCH);
+        int newCount = (int) (inches * COUNTS_PER_INCH);
 
-        telemetry.addData("FronLeft",  "Running to %7d :%7d", robot.motorFrontLeft.getCurrentPosition(),  robot.motorFrontLeft.getCurrentPosition() + newCount);
-        telemetry.addData("FrontRight",  "Running to %7d :%7d", robot.motorFrontRight.getCurrentPosition(),  robot.motorFrontRight.getCurrentPosition() + newCount);
+        telemetry.addData("FronLeft", "Running to %7d :%7d", robot.motorFrontLeft.getCurrentPosition(), robot.motorFrontLeft.getCurrentPosition() + newCount);
+        telemetry.addData("FrontRight", "Running to %7d :%7d", robot.motorFrontRight.getCurrentPosition(), robot.motorFrontRight.getCurrentPosition() + newCount);
 
         telemetry.update();
         // Determine new target position, and pass to motor controller
-        for(DcMotor m: robot.driveMotors)
-          m.setTargetPosition(m.getCurrentPosition() + newCount);
+        for (DcMotor m : robot.driveMotors)
+            m.setTargetPosition(m.getCurrentPosition() + newCount);
 
         runDriveMotors(speed, timeoutS);
     }
 
 
+    protected void turnRight(double angle, double speed, double timeoutS) {
+        double archLength = 3.1415 * WHEEL_BASE_INCHES * angle / 360;
+        int newCount = (int) (archLength * COUNTS_PER_INCH);
 
-
-    protected void turnRight(double angle, double speed, double timeoutS){
-        double archLength = 3.1415 * WHEEL_BASE_INCHES * angle /360;
-        int newCount = (int)(archLength * COUNTS_PER_INCH);
-
-        for(DcMotor m: new DcMotor[]{robot.motorFrontLeft,robot.motorBackLeft})
+        for (DcMotor m : new DcMotor[]{robot.motorFrontLeft, robot.motorBackLeft})
             m.setTargetPosition(m.getCurrentPosition() + newCount);
 
-        for(DcMotor m: new DcMotor[]{robot.motorFrontRight,robot.motorBackRight})
+        for (DcMotor m : new DcMotor[]{robot.motorFrontRight, robot.motorBackRight})
             m.setTargetPosition(m.getCurrentPosition() - newCount);
 
         runDriveMotors(speed, timeoutS);
@@ -154,30 +162,31 @@ public class BotBase extends LinearOpMode  {
     }
 
 
-    public void runTasks(){
+    public void runTasks() {
 
     }
 
 
-    public void runBackward(double inches, double speed, double timeoutS){
+    public void runBackward(double inches, double speed, double timeoutS) {
         runForward(-inches, speed, timeoutS);
     }
 
-    public void turnLeft(double angle, double speed, double timeoutS){
+    public void turnLeft(double angle, double speed, double timeoutS) {
         turnRight(-angle, speed, timeoutS);
     }
-    public void runRight(double inches, double speed, double timeoutS){
+
+    public void runRight(double inches, double speed, double timeoutS) {
         runLeft(-inches, speed, timeoutS);
     }
 
-    public void runDriveMotors(double speed, double timeoutS){
+    public void runDriveMotors(double speed, double timeoutS) {
 
         // Turn On RUN_TO_POSITION
-        for(DcMotor m: robot.driveMotors)
+        for (DcMotor m : robot.driveMotors)
             m.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         runtime.reset();
-        for(DcMotor m: robot.driveMotors)
+        for (DcMotor m : robot.driveMotors)
             m.setPower(Math.abs(speed));
 
 
@@ -187,7 +196,76 @@ public class BotBase extends LinearOpMode  {
 
         }
         // Set all motors to zero power
-        for(DcMotor m: robot.driveMotors)
+        for (DcMotor m : robot.driveMotors)
             m.setPower(0);
+    }
+
+    public void driveWheels(float rotation, float strafe, float forward) {
+
+        // left stick controls direction
+        // right stick X controls rotation
+
+
+        // holonomic formulas
+        for (DcMotor m : robot.driveMotors)
+            m.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        float frontLeft = rotation - strafe + forward;
+        float frontRight = -rotation + strafe + forward;
+        float backRight = -rotation - strafe + forward;
+        float backLeft = rotation + strafe + forward;
+
+        // clip the right/left values so that the values never exceed +/- 1
+        frontRight = Range.clip(frontRight, -2, 2);
+        frontLeft = Range.clip(frontLeft, -2, 2);
+        backLeft = Range.clip(backLeft, -2, 2);
+        backRight = Range.clip(backRight, -2, 2);
+
+        // write the values to the motors
+        robot.motorFrontRight.setPower(frontRight);
+        robot.motorFrontLeft.setPower(frontLeft);
+        robot.motorBackLeft.setPower(backLeft);
+        robot.motorBackRight.setPower(backRight);
+
+        telemetry.addData("f left pwr",  "front left  pwr: " + String.format("%.2f", frontLeft));
+        telemetry.addData("f right pwr", "front right pwr: " + String.format("%.2f", frontRight));
+        telemetry.addData("b right pwr", "back right pwr: " + String.format("%.2f", backRight));
+        telemetry.addData("b left pwr", "back left pwr: " + String.format("%.2f", backLeft));
+        telemetry.update();
+
+    }
+
+    public void restWheels()
+    {
+        for (DcMotor m : robot.driveMotors)
+            m.setPower(0);
+    }
+    public float scaleIn(float dVal) {
+        float[] scaleArray = {0.0f, 0.01f, 0.09f, 0.10f, 0.12f, 0.15f, 0.18f, 0.24f,
+                0.30f, 0.36f, 0.43f, 0.50f, 0.60f, 0.72f, 0.85f, 1.00f, 1.00f};
+
+        // get the corresponding index for the scaleInput array.
+        int index = (int) (dVal * 16.0);
+
+        // index should be positive.
+        if (index < 0) {
+            index = -index;
+        }
+
+        // index cannot exceed size of array minus 1.
+        if (index > 16) {
+            index = 16;
+        }
+
+        // get value from the array.
+        double dScale = 0.0;
+        if (dVal < 0) {
+            dScale = -scaleArray[index];
+        } else {
+            dScale = scaleArray[index];
+        }
+
+        // return scaled value.
+        return (float) dScale;
     }
 }

@@ -2,69 +2,47 @@ package org.firstinspires.ftc.teamcode.onbot;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp(name="TeleOpProgram", group="Tournament")
+
+@TeleOp(name = "TeleOpProgram", group = "Tournament")
 //@Disabled
 public class TeleOpProgram extends BotBase {
 
-    public void runTasks(){
-        double left;
-        double right;
-        double drive;
-        double turn;
-        double max;
 
-        // run until the end of the match (driver presses STOP)
+    @Override
+    public void runTasks() {
         while (opModeIsActive()) {
+            float rotation = scaleIn(-gamepad1.left_stick_y);
+            float strafe = scaleIn(gamepad1.left_stick_x);
+            float forward = scaleIn(-gamepad1.right_stick_y);
 
-            // Run wheels in POV mode (note: The joystick goes negative when pushed forwards, so negate it)
-            // In this mode the Left stick moves the robot fwd and back, the Right stick turns left and right.
-            // This way it's also easy to just drive straight, or just turn.
-            drive = -gamepad1.left_stick_y;
-            turn  = -1* gamepad1.right_stick_x;
 
-            // Combine drive and turn for blended motion.
-            left  = drive + turn;
-            right = drive - turn;
+            if (rotation != 0 || strafe != 0 || forward != 0)
+                this.driveWheels(rotation, strafe, forward);
+            else
+                this.restWheels();
 
-            // Normalize the values so neither exceed +/- 1.0
-            max = Math.max(Math.abs(left), Math.abs(right));
-            if (max > 1.0)
-            {
-                left /= max;
-                right /= max;
+            if (gamepad1.dpad_up) {
+                robot.verticalLift.setPower(0.1);
+            } else if (gamepad1.dpad_down) {
+                robot.verticalLift.setPower(-0.1);
             }
+            else
+                robot.verticalLift.setPower(0);
 
-            // Output the safe vales to the motor drives.
-            this.robot.leftDrive.setPower(left);
-            this.robot.rightDrive.setPower(right);
-
-            if (gamepad1.dpad_down){
-                telemetry.addData("Touch Sensor:" ,  ""+robot.touchSensor.isPressed());
-                telemetry.update();
-                runtime.reset();
-                while (opModeIsActive() && runtime.seconds() < 0.5) {
-                    this.robot.liftDrive.setPower(0.4);
-                }
-                this.robot.liftDrive.setPower(0);
+            if (gamepad1.dpad_left){
+                robot.horizontalSlide.setPosition(1);
             }
-            if (gamepad1.dpad_up ){
-                runtime.reset();
-                while (opModeIsActive() && runtime.seconds() < 0.5) {
-                    if(!robot.touchSensor.isPressed() )
-                        this.robot.liftDrive.setPower(-0.3);
-                }
-                this.robot.liftDrive.setPower(0);
+            else if (gamepad1.dpad_right){
+                robot.horizontalSlide.setPosition(-1);
             }
-            // Map X button to move the hook to lock position
-            if (gamepad1.x)
-                hookLock();
-            // Map B button to move the hook to open position
-            if (gamepad1.b)
-                hookRelease();
-
-
-            sleep(5);
+            else
+                robot.horizontalSlide.setPosition(0);
         }
+
     }
 }
+
+
+
+
 
