@@ -60,6 +60,8 @@ public class BotBase extends LinearOpMode {
 
         Servo horizontalSlide;
 
+        Servo grabber;
+
         /* local OpMode members. */
         HardwareMap hwMap = null;
 
@@ -85,6 +87,10 @@ public class BotBase extends LinearOpMode {
             verticalLift.setPower(0);
 
             horizontalSlide = hwMap.servo.get("HS");
+
+            grabber = hwMap.servo.get("GR");
+            grabber.setDirection(Servo.Direction.FORWARD);
+
 
             for (DcMotor m : driveMotors)
                 m.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -117,7 +123,7 @@ public class BotBase extends LinearOpMode {
      *  3) Driver stops the opmode running.
      */
     //strafing
-    public void runLeft(double inches,
+    protected void runLeft(double inches,
                         double speed, double timeoutS) {
         int newCount = (int) (inches * COUNTS_PER_INCH);
 
@@ -131,7 +137,7 @@ public class BotBase extends LinearOpMode {
         runDriveMotors(speed, timeoutS);
     }
 
-    public void runForward(double inches,
+    protected void runForward(double inches,
                            double speed, double timeoutS) {
         int newCount = (int) (inches * COUNTS_PER_INCH);
 
@@ -167,19 +173,19 @@ public class BotBase extends LinearOpMode {
     }
 
 
-    public void runBackward(double inches, double speed, double timeoutS) {
+    protected void runBackward(double inches, double speed, double timeoutS) {
         runForward(-inches, speed, timeoutS);
     }
 
-    public void turnLeft(double angle, double speed, double timeoutS) {
+    protected void turnLeft(double angle, double speed, double timeoutS) {
         turnRight(-angle, speed, timeoutS);
     }
 
-    public void runRight(double inches, double speed, double timeoutS) {
+    protected void runRight(double inches, double speed, double timeoutS) {
         runLeft(-inches, speed, timeoutS);
     }
 
-    public void runDriveMotors(double speed, double timeoutS) {
+    protected void runDriveMotors(double speed, double timeoutS) {
 
         // Turn On RUN_TO_POSITION
         for (DcMotor m : robot.driveMotors)
@@ -200,7 +206,40 @@ public class BotBase extends LinearOpMode {
             m.setPower(0);
     }
 
-    public void driveWheels(float rotation, float strafe, float forward) {
+    protected  void verticalLiftUp(){
+        robot.verticalLift.setPower(0.4);
+    }
+
+    protected void verticalLiftDown(){
+        robot.verticalLift.setPower(-0.4);
+    }
+
+    protected void verticalLiftStop(){
+        robot.verticalLift.setPower(0);
+    }
+
+    protected void grabberClose(){
+        robot.grabber.setPosition(0.2);
+    }
+
+    protected void grabberRelease(){
+        robot.grabber.setPosition(1);
+    }
+
+    protected void horizontalSlideExtend()
+    {
+        robot.horizontalSlide.setPosition(.1);
+    }
+
+    protected void horizontalSlideRetract(){
+        robot.horizontalSlide.setPosition(1.0);
+    }
+
+    protected void horizontalSlideStop(){
+        robot.horizontalSlide.setPosition(0.5);
+    }
+
+    protected void driveWheels(float rotation, float strafe, float forward) {
 
         // left stick controls direction
         // right stick X controls rotation
@@ -235,12 +274,12 @@ public class BotBase extends LinearOpMode {
 
     }
 
-    public void restWheels()
+    protected void restWheels()
     {
         for (DcMotor m : robot.driveMotors)
             m.setPower(0);
     }
-    public float scaleIn(float dVal) {
+    protected float scaleIn(float dVal) {
         float[] scaleArray = {0.0f, 0.01f, 0.09f, 0.10f, 0.12f, 0.15f, 0.18f, 0.24f,
                 0.30f, 0.36f, 0.43f, 0.50f, 0.60f, 0.72f, 0.85f, 1.00f, 1.00f};
 

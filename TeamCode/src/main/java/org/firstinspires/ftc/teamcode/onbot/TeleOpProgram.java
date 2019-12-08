@@ -11,8 +11,9 @@ public class TeleOpProgram extends BotBase {
     @Override
     public void runTasks() {
         while (opModeIsActive()) {
+            //Handle Wheel controls
             float rotation = scaleIn(-gamepad1.left_stick_y);
-            float strafe = scaleIn(gamepad1.left_stick_x);
+            float strafe = scaleIn(gamepad1.right_stick_x);
             float forward = scaleIn(-gamepad1.right_stick_y);
 
 
@@ -21,22 +22,35 @@ public class TeleOpProgram extends BotBase {
             else
                 this.restWheels();
 
+            //Handle vertical lift controls
             if (gamepad1.dpad_up) {
-                robot.verticalLift.setPower(0.1);
+                verticalLiftUp();
             } else if (gamepad1.dpad_down) {
-                robot.verticalLift.setPower(-0.1);
+                verticalLiftDown();
             }
             else
-                robot.verticalLift.setPower(0);
+                verticalLiftStop();
 
+            //Handle horizontal lift controls
             if (gamepad1.dpad_left){
-                robot.horizontalSlide.setPosition(1);
+                horizontalSlideExtend();
             }
             else if (gamepad1.dpad_right){
-                robot.horizontalSlide.setPosition(-1);
+                horizontalSlideRetract();
             }
             else
-                robot.horizontalSlide.setPosition(0);
+                horizontalSlideStop();
+
+            //Handle grabber controls
+            if (gamepad1.y){
+                grabberRelease();
+            }
+            else if (gamepad1.a){
+                grabberClose();
+            }
+
+
+
         }
 
     }
