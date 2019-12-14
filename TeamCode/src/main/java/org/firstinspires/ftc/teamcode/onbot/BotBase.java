@@ -124,7 +124,7 @@ public class BotBase extends LinearOpMode {
      */
     //strafing
     protected void runLeft(double inches,
-                        double speed, double timeoutS) {
+                           double speed, double timeoutS) {
         int newCount = (int) (inches * COUNTS_PER_INCH);
 
         for (DcMotor m : new DcMotor[]{robot.motorBackLeft, robot.motorFrontRight})
@@ -138,7 +138,7 @@ public class BotBase extends LinearOpMode {
     }
 
     protected void runForward(double inches,
-                           double speed, double timeoutS) {
+                              double speed, double timeoutS) {
         int newCount = (int) (inches * COUNTS_PER_INCH);
 
         telemetry.addData("FronLeft", "Running to %7d :%7d", robot.motorFrontLeft.getCurrentPosition(), robot.motorFrontLeft.getCurrentPosition() + newCount);
@@ -207,23 +207,23 @@ public class BotBase extends LinearOpMode {
     }
 
     protected  void verticalLiftUp(){
-        robot.verticalLift.setPower(0.4);
+        robot.verticalLift.setPower(0.5);
     }
 
     protected void verticalLiftDown(){
-        robot.verticalLift.setPower(-0.4);
+        robot.verticalLift.setPower(-0.2);
     }
 
     protected void verticalLiftStop(){
         robot.verticalLift.setPower(0);
     }
 
-    protected void grabberClose(){
-        robot.grabber.setPosition(0.2);
+    protected void grabberRelease(){
+        robot.grabber.setPosition(0);
     }
 
-    protected void grabberRelease(){
-        robot.grabber.setPosition(1);
+    protected void grabberClose(){
+        robot.grabber.setPosition(0.6);
     }
 
     protected void horizontalSlideExtend()

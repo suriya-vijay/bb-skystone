@@ -12,8 +12,8 @@ public class TeleOpProgram extends BotBase {
     public void runTasks() {
         while (opModeIsActive()) {
             //Handle Wheel controls
-            float rotation = scaleIn(-gamepad1.left_stick_y);
-            float strafe = scaleIn(gamepad1.right_stick_x);
+            float rotation = scaleIn(-gamepad1.left_stick_x);
+            float strafe = scaleIn(-gamepad1.right_stick_x);
             float forward = scaleIn(-gamepad1.right_stick_y);
 
 
@@ -42,10 +42,10 @@ public class TeleOpProgram extends BotBase {
                 horizontalSlideStop();
 
             //Handle grabber controls
-            if (gamepad1.y){
+            if (gamepad1.a){
                 grabberRelease();
             }
-            else if (gamepad1.a){
+            else if (gamepad1.b){
                 grabberClose();
             }
 
