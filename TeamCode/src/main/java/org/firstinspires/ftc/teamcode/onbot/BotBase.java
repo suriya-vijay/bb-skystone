@@ -280,7 +280,7 @@ public class BotBase extends LinearOpMode {
             m.setPower(0);
     }
     protected float scaleIn(float dVal) {
-        float[] scaleArray = {0.0f, 0.01f, 0.09f, 0.10f, 0.12f, 0.15f, 0.18f, 0.24f,
+        float[] scaleArray = {0.0f, 0.01f, 0.02f, 0.03f, 0.04f, 0.07f, 0.18f, 0.24f,
                 0.30f, 0.36f, 0.43f, 0.50f, 0.60f, 0.72f, 0.85f, 1.00f, 1.00f};
 
         // get the corresponding index for the scaleInput array.
