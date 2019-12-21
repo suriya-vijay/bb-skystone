@@ -62,6 +62,8 @@ public class BotBase extends LinearOpMode {
 
         Servo grabber;
 
+        Servo hook;
+
         /* local OpMode members. */
         HardwareMap hwMap = null;
 
@@ -91,6 +93,7 @@ public class BotBase extends LinearOpMode {
             grabber = hwMap.servo.get("GR");
             grabber.setDirection(Servo.Direction.FORWARD);
 
+            hook = hwMap.servo.get("HK");
 
             for (DcMotor m : driveMotors)
                 m.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -202,8 +205,10 @@ public class BotBase extends LinearOpMode {
 
         }
         // Set all motors to zero power
-        for (DcMotor m : robot.driveMotors)
+        for (DcMotor m : robot.driveMotors) {
+            m.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             m.setPower(0);
+        }
     }
 
     protected  void verticalLiftUp(){
@@ -226,17 +231,55 @@ public class BotBase extends LinearOpMode {
         robot.grabber.setPosition(0.6);
     }
 
-    protected void horizontalSlideExtend()
+    protected void horizontalSlideExtend(double timeoutS)
     {
-        robot.horizontalSlide.setPosition(.1);
+        if(timeoutS>0) {
+            runtime.reset();
+            while (opModeIsActive() &&
+                    (runtime.seconds() < timeoutS)) {
+                robot.horizontalSlide.setPosition(0.1);
+
+            }
+            horizontalSlideStop();
+        }
+        else
+            robot.horizontalSlide.setPosition(.1);
     }
 
-    protected void horizontalSlideRetract(){
-        robot.horizontalSlide.setPosition(1.0);
+    protected void horizontalSlideRetract(double timeoutS){
+        if(timeoutS>0) {
+            runtime.reset();
+            while (opModeIsActive() &&
+                    (runtime.seconds() < timeoutS)) {
+                robot.hook.setPosition(1.0);
+
+            }
+            horizontalSlideStop();
+        }
+        else
+            robot.horizontalSlide.setPosition(1.0);
     }
 
     protected void horizontalSlideStop(){
         robot.horizontalSlide.setPosition(0.5);
+    }
+
+    protected void hookEngage(){
+        runtime.reset();
+        while (opModeIsActive() &&
+                (runtime.seconds() < 1.0)){
+            robot.hook.setPosition(0.65);
+
+        }
+    }
+
+    protected void hookDisengage(){
+        runtime.reset();
+        while (opModeIsActive() &&
+                (runtime.seconds() < 1.0)){
+            robot.hook.setPosition(1.0);
+
+        }
     }
 
     protected void driveWheels(float rotation, float strafe, float forward) {
@@ -255,10 +298,10 @@ public class BotBase extends LinearOpMode {
         float backLeft = rotation + strafe + forward;
 
         // clip the right/left values so that the values never exceed +/- 1
-        frontRight = Range.clip(frontRight, -2, 2);
-        frontLeft = Range.clip(frontLeft, -2, 2);
-        backLeft = Range.clip(backLeft, -2, 2);
-        backRight = Range.clip(backRight, -2, 2);
+        frontRight = Range.clip(frontRight, -1, 1);
+        frontLeft = Range.clip(frontLeft, -1, 1);
+        backLeft = Range.clip(backLeft, -1, 1);
+        backRight = Range.clip(backRight, -1, 1);
 
         // write the values to the motors
         robot.motorFrontRight.setPower(frontRight);
