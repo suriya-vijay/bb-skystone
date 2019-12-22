@@ -1,9 +1,12 @@
 package org.firstinspires.ftc.teamcode.onbot;
 
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(name="AutoTest", group="Tournament")
-public class AutoTest extends BotBase{
+@Autonomous(name="AutoBlue-FacingBlocks", group="Tournament")
+public class AutoBlueFacingBlocks extends BotBase{
+
+    protected int dir =1;
 
     public void runTasks(){
 
@@ -14,19 +17,19 @@ public class AutoTest extends BotBase{
         grabberClose();
         sleep(400);
         runBackward(25,5,2);
-        runLeft(68,5,5);
+        runLeft(dir*68,5,5);
         grabberRelease();
 
-        runRight(40,5,3);
+        runRight(dir*40,5,3);
         runForward(25,5,2);
         grabberClose();
-        sleep(250);
-        turnLeft(10,5,2);
+        sleep(400);
+        turnLeft(dir*10,5,2);
         runBackward(25,5,2);
-        runLeft(40,5,5);
+        runLeft(dir*40,5,5);
         grabberRelease();
 
-        runRight(10,10,5);
+        runRight(dir*10,10,5);
 
 
 

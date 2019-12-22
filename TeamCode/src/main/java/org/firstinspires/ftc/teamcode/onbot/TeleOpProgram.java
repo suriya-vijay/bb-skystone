@@ -33,10 +33,10 @@ public class TeleOpProgram extends BotBase {
 
             //Handle horizontal lift controls
             if (gamepad1.dpad_left){
-                horizontalSlideExtend();
+                horizontalSlideExtend(-1);
             }
             else if (gamepad1.dpad_right){
-                horizontalSlideRetract();
+                horizontalSlideRetract(-1);
             }
             else
                 horizontalSlideStop();
@@ -49,6 +49,13 @@ public class TeleOpProgram extends BotBase {
                 grabberClose();
             }
 
+            //Handle grabber controls
+            if (gamepad1.x){
+                hookEngage();
+            }
+            else if (gamepad1.y){
+                hookDisengage();
+            }
 
 
         }

@@ -156,6 +156,7 @@ public class BotBase extends LinearOpMode {
     }
 
 
+
     protected void turnRight(double angle, double speed, double timeoutS) {
         double archLength = 3.1415 * WHEEL_BASE_INCHES * angle / 360;
         int newCount = (int) (archLength * COUNTS_PER_INCH);
@@ -268,7 +269,7 @@ public class BotBase extends LinearOpMode {
         runtime.reset();
         while (opModeIsActive() &&
                 (runtime.seconds() < 1.0)){
-            robot.hook.setPosition(0.65);
+            robot.hook.setPosition(0.75);
 
         }
     }
