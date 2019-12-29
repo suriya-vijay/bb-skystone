@@ -2,10 +2,11 @@ package org.firstinspires.ftc.teamcode.onbot;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(name="AutoRed-FacingBlocks", group="Tournament")
+@Autonomous(name="AutoBlueHook", group="Tournament")
 
-public class AutoRedFacingBlocks extends AutoBlueFacingBlocks {
+public class AutoBlueHook extends BotBase {
     public int getDir(){
         return -1;
     }
+
 }

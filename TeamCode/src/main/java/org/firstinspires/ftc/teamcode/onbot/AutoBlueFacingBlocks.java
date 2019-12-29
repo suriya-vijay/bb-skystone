@@ -6,7 +6,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 @Autonomous(name="AutoBlue-FacingBlocks", group="Tournament")
 public class AutoBlueFacingBlocks extends BotBase{
 
-    protected int dir =1;
+    public int getDir(){
+        return 1;
+    }
 
     public void runTasks(){
 
@@ -17,19 +19,19 @@ public class AutoBlueFacingBlocks extends BotBase{
         grabberClose();
         sleep(400);
         runBackward(25,5,2);
-        runLeft(dir*68,5,5);
+        runLeft(getDir()*68,5,5);
         grabberRelease();
 
-        runRight(dir*40,5,3);
+        runRight(getDir()*40,5,3);
         runForward(25,5,2);
         grabberClose();
         sleep(400);
-        turnLeft(dir*10,5,2);
+        turnLeft(getDir()*10,5,2);
         runBackward(25,5,2);
-        runLeft(dir*40,5,5);
+        runLeft(getDir()*40,5,5);
         grabberRelease();
 
-        runRight(dir*10,10,5);
+        runRight(getDir()*10,10,5);
 
 
 
