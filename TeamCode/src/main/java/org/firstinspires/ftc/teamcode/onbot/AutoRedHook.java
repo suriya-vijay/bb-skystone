@@ -12,12 +12,13 @@ public class AutoRedHook extends BotBase {
     public void runTasks(){
         runBackward(30,10,2);
         hookEngage();
-        runForward(40,10,2);
-        turnLeft(getDir()*210,10,7);
-        hookDisengage();
+        runForward(30,10,2);
+        turnLeft(getDir()*150,10,7);
         sleep(400);
-        runRight(getDir()*20,5,5);
-        runForward(23,10,2);
-        //runRight(10,10,3);
+        hookDisengage();
+        runForward(10,10,2);
+        runLeft(getDir()*20,5,5);
+        runForward(25,10,2);
+        turnRight(getDir()*70,10,5);
     }
 }

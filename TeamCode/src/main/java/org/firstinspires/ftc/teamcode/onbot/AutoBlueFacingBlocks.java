@@ -18,20 +18,20 @@ public class AutoBlueFacingBlocks extends BotBase{
         runForward(28,10.0,2);
         grabberClose();
         sleep(400);
-        runBackward(25,5,2);
-        runLeft(getDir()*68,5,5);
+        runBackward(24,5,2);
+        runLeft(getDir()*70,5,5);
         grabberRelease();
 
-        runRight(getDir()*40,5,3);
+        runRight(getDir()*42,5,3);
         runForward(25,5,2);
         grabberClose();
         sleep(400);
         turnLeft(getDir()*10,5,2);
         runBackward(25,5,2);
-        runLeft(getDir()*40,5,5);
+        runLeft(getDir()*42,5,5);
         grabberRelease();
 
-        runRight(getDir()*10,10,5);
+        runRight(getDir()*17,15,5);
 
 
 

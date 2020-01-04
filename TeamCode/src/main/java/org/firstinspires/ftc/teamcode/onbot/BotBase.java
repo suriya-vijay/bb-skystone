@@ -229,7 +229,7 @@ public class BotBase extends LinearOpMode {
     }
 
     protected void grabberClose(){
-        robot.grabber.setPosition(0.6);
+        robot.grabber.setPosition(0.7);
     }
 
     protected void horizontalSlideExtend(double timeoutS)
@@ -269,7 +269,7 @@ public class BotBase extends LinearOpMode {
         runtime.reset();
         while (opModeIsActive() &&
                 (runtime.seconds() < 1.0)){
-            robot.hook.setPosition(0.75);
+            robot.hook.setPosition(0.7);
 
         }
     }
@@ -278,7 +278,7 @@ public class BotBase extends LinearOpMode {
         runtime.reset();
         while (opModeIsActive() &&
                 (runtime.seconds() < 1.0)){
-            robot.hook.setPosition(1.0);
+            robot.hook.setPosition(.95);
 
         }
     }
